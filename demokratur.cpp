@@ -101,7 +101,6 @@ int* left(int *position) {
     return position;
 }
 
-
 int* right(int *position) {
     int x = x(position);
     position = (x + 1 < fieldX) ? position++ : position - fieldX + 1;
