@@ -6,26 +6,26 @@ using namespace std;
 void init(int X, int Y, int part, int st);
 int* getRandNeighbour(int* candidate);
 int* pos(int x, int y);
-int x(int *position);
-int y(int *position);
+int  getX(int *position);
+int  getY(int *position);
 int* left(int *position);
 int* right(int *position);
 int* up(int *position);
 int* down(int *position);
 int* initField(int fieldsize, int parties);
 
-random_device *const rd = new random_device();
-mt19937 *const engine = new mt19937(rd);
-uniform_int_distribution<int> *const randNeighbour = new uniform_int_distribution<int>(0, 3);
-uniform_int_distribution<int> *randField;
+static random_device *const rd = new random_device();
+static mt19937 *const engine = new mt19937(rd);
+static uniform_int_distribution<int> *const randNeighbour = new uniform_int_distribution<int>(0, 3);
+static uniform_int_distribution<int> *randField;
 
-int parties;
-int steps;
+static int parties;
+static int steps;
 
-int *field;
-int fieldX;
-int fieldY;
-int fieldsize;
+static int *field;
+static int fieldX;
+static int fieldY;
+static int fieldsize;
 
 void init(int X, int Y, int part, int st) {
     fieldX = X;
@@ -45,7 +45,7 @@ int main() {
     int *neighbour;
 
     for (int i = 0; i < steps; i++) {
-        candidate = field[(*randField)(engine)];
+        candidate = field + (*randField)(engine);
         neighbour = getRandNeighbour(candidate);
     }
 }
@@ -79,52 +79,67 @@ int* pos(int x, int y) {
     return nullptr;
 }
 
-int x(int *position) {
-    int count = position - field;
+int getX(int *position) {
+    int count = int(position - field);
     if(count < 0 || count > fieldsize) {
-        return nullptr;
+        return -1;
     }
     return count / fieldX;
 }
 
-int y(int *position) {
-    int count = position - field;
+int getY(int *position) {
+    int count = int(position - field);
     if(count < 0 || count > fieldsize) {
-        return nullptr;
+        return -1;
     }
-    int y = count % fieldX;
+    return count % fieldX;
 }
 
 int* left(int *position) {
-    int x = x(position);
-    position = (x - 1 >= 0) ? position-- : position + fieldX - 1;
-    return position;
+    int x = getX(position);
+    if(x > -1) {
+        position = (x - 1 >= 0) ? position-- : position + fieldX - 1;
+        return position;
+    }
+    return nullptr;
 }
 
 int* right(int *position) {
-    int x = x(position);
-    position = (x + 1 < fieldX) ? position++ : position - fieldX + 1;
-    return position;
+    int x = getX(position);
+    if(x > -1) {
+        position = (x + 1 < fieldX) ? position++ : position - fieldX + 1;
+        return position;
+    }
+    return nullptr;
 }
 
 int* up(int *position) {
-    int y = y(position);
-    position = (y - fieldX >= 0) ? position - fieldX : position - fieldX + fieldsize;
-    return position;
+    int y = getY(position);
+    if(y > -1) {
+        position = (y - fieldX >= 0) ? position - fieldX : position - fieldX + fieldsize;
+        return position;
+    }
+    return nullptr;
 }
 
 int* down(int *position) {
-    int y = y(position);
-    position = (y + fieldX < fieldY) ? position + fieldX : position + fieldX - fieldsize;
-    return position;
+    int y = getY(position);
+    if(y > -1) {
+        position = (y + fieldX < fieldY) ? position + fieldX : position + fieldX - fieldsize;
+        return position;
+    }
+    return nullptr;
 }
 
 int* initField(int fieldsize, int parties) {
-    uniform_int_distribution<int> randInit(0, parties - 1);
-    int *field = new int[fieldsize];
-    for (unsigned int i = 0; i < fieldsize; i++) {
-        int *p = field + i;
-        *p = randInit(engine);
+    if(fieldsize > 0 && parties > 0) {
+        uniform_int_distribution<int> randInit(0, parties - 1);
+        int *field = new int[unsigned(fieldsize)];
+        for (int i = 0; i < fieldsize; i++) {
+            int *p = field + i;
+            *p = randInit(engine);
+        }
+        return field;
     }
-    return field;
+    return nullptr;
 }
