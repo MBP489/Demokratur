@@ -1,6 +1,7 @@
 #include <iostream>
 #include <random>
 #include <windows.h>
+#include <time.h>
 
 using namespace std;
 
@@ -15,8 +16,12 @@ int* right(int *position);
 int* up(int *position);
 int* down(int *position);
 int* initField(int fieldsize, int parties);
+int* initParties(int *parties, int partiessize);
 int getRand(int inclusiveUpperBound);
+bool isUniform();
 void printField();
+
+static mt19937 engine;
 
 static int *parties;
 static int *field;
@@ -31,36 +36,39 @@ void init(int X, int Y, int *part, int partsize, int st) {
     steps = st;
     counter = 0;
 
-    parties = new int[partsize];
-    for(int i = 0; i < partsize; i++){
-        int *p = parties + i;
-        *p = part[i];
-    }
+    random_device rd;
+    seed_seq seed{static_cast<long unsigned int>(time(nullptr))};
+    engine.seed(seed);
 
+    parties = initParties(part, partsize);
     field = initField(fieldX * fieldY, partsize);
 }
 
 int main() {
     int parties[] = {50, 50};
-    init(20, 20, parties, 2, 1000000);
+    init(20, 20, parties, 2, 70000000);
     printField();
     int *candidate;
     int *neighbour;
     int limit = 0;
     int fieldsize = fieldX * fieldY;
-    for (int i = 0; i < steps; i++) {
+    while (true) {
         candidate = field + getRand(fieldsize);
         neighbour = getRandNeighbour(candidate);
         if(*candidate != *neighbour) {
             talk(candidate, neighbour);
         }
-        limit++;
         counter++;
+        if(counter > steps || isUniform()) {
+            break;
+        }
+        limit++;
         if(limit > 10000){
             printField();
             limit = 0;
         }
     }
+    printField();
 }
 
 void talk(int *candidate, int *neighbour) {
@@ -152,16 +160,22 @@ int* down(int *position) {
     return nullptr;
 }
 
-int* initField(int fieldsize, int parties) {
-    if(fieldsize > 0 && parties > 0) {
-        int *field = new int[unsigned(fieldsize)];
-        for (int i = 0; i < fieldsize; i++) {
-            int *p = field + i;
-            *p = getRand(parties);
-        }
-        return field;
+int* initParties(int *parties, int partiessize) {
+    int* ptr = new int[unsigned(partiessize)];
+    for(int i = 0; i < partiessize; i++){
+        int *p = ptr + i;
+        *p = parties[i];
     }
-    return nullptr;
+    return ptr;
+}
+
+int* initField(int fieldsize, int parties) {
+    int *field = new int[unsigned(fieldsize)];
+    for (int i = 0; i < fieldsize; i++) {
+        int *p = field + i;
+        *p = getRand(parties);
+    }
+    return field;
 }
 
 void printField() {
@@ -174,9 +188,19 @@ void printField() {
         }
         cout << endl;
     }
-    cout << "steps: " << counter << endl;
+    cout << "COUNTER: " << counter << endl;
+}
+
+bool isUniform() {
+    for(int i = 1; i < fieldX * fieldY; i++){
+        if(*(field + i) != *field) {
+            return false;
+        }
+    }
+    return true;
 }
 
 int getRand(int exclusiveUpperBound) {
-    return rand() % exclusiveUpperBound;
+    uniform_int_distribution<int> random(0, exclusiveUpperBound - 1);
+    return random(engine);
 }
