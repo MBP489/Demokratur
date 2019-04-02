@@ -17,7 +17,7 @@ int* right(int *position);
 int* up(int *position);
 int* down(int *position);
 int* initFieldRand(int fieldsize, int parties);
-int* initField(int fieldsize, int parties);
+int* initFieldUniform(int fieldsize, int parties);
 int* initParties(int *parties, int partiessize);
 int getRand(int inclusiveUpperBound);
 bool isUniform();
@@ -46,7 +46,7 @@ void init(int X, int Y, int *part, int partsize, int st, int prtSteps) {
     engine.seed(seed);
 
     parties = initParties(part, partsize);
-    field = initField(fieldX * fieldY, partsize);
+    field = initFieldRand(fieldX * fieldY, partsize);
 }
 
 int main() {
@@ -183,7 +183,13 @@ int* initParties(int *parties, int partiessize) {
     return ptr;
 }
 
-int* initField(int fieldsize, int parties) {
+/**
+ * @brief initialzies a new field in a uniformed way
+ * @param fieldsize the size of the field
+ * @param parties the count of the parties the field will be initialized with
+ * @return *int: a pointer to a new field
+ */
+int* initFieldUniform(int fieldsize, int parties) {
     int *field = new int[unsigned(fieldsize)];
     int size = fieldsize / parties;
     int oversize = fieldsize & parties;
@@ -203,6 +209,12 @@ int* initField(int fieldsize, int parties) {
     return field;
 }
 
+/**
+ * @brief initializes a new field in a random way
+ * @param fieldsize the size of the field
+ * @param parties the count of the parties the field will be initializes with
+ * @return *int: a pointer to a new field
+ */
 int* initFieldRand(int fieldsize, int parties) {
     int *field = new int[unsigned(fieldsize)];
     for (int i = 0; i < fieldsize; i++) {
@@ -227,6 +239,11 @@ void printField(int time) {
     Sleep(time);
 }
 
+/**
+ * @brief proofs if the field is filled with uniform values
+ * @return true - if the field is filled with uniform values <br>
+ *         false - else
+ */
 bool isUniform() {
     for(int i = 1; i < fieldX * fieldY; i++){
         if(*(field + i) != *field) {
@@ -236,6 +253,11 @@ bool isUniform() {
     return true;
 }
 
+/**
+ * @brief determines a random number between 0 and the given exclusive upper bound
+ * @param exclusiveUpperBound a upper bound which is exclusive
+ * @return int: 0 <= randrom number < exclusiveUpperBound
+ */
 int getRand(int exclusiveUpperBound) {
     uniform_int_distribution<int> random(0, exclusiveUpperBound - 1);
     return random(engine);
