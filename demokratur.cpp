@@ -30,11 +30,18 @@ static int *parties;
 static int *field;
 static int fieldX;
 static int fieldY;
+static int *candidate;
+static int *neighbour;
 static int steps;
 static int printSteps;
 static int counter;
+static int limit;
 
 void init(int X, int Y, int *part, int partsize, int st, int prtSteps) {
+    if (partsize > 4) {
+        throw -1;
+    }
+
     fieldX = X;
     fieldY = Y;
     steps = st;
@@ -52,9 +59,9 @@ void init(int X, int Y, int *part, int partsize, int st, int prtSteps) {
 int main() {
     int parties[] = {50, 50};
     init(20, 20, parties, 2, 70000000, 100);
-    int *candidate;
-    int *neighbour;
-    int limit = 0;
+//    int *candidate;
+//    int *neighbour;
+    limit = 0;
     int fieldsize = fieldX * fieldY;
 
     printField(0);
@@ -62,7 +69,6 @@ int main() {
         candidate = field + getRand(fieldsize);
         neighbour = getRandNeighbour(candidate);
         talk(candidate, neighbour);
-//        swap(candidate, neighbour);
         counter++;
         if(counter > steps || isUniform()) {
             break;
@@ -141,7 +147,9 @@ int getY(int *position) {
 int* left(int *position) {
     int x = getX(position);
     if(x > -1) {
-        position = (x - 1 >= 0) ? --position : position + fieldX - 1;
+        position = (x - 1 >= 0) ?
+                    --position :
+                    position + fieldX - 1;
         return position;
     }
     return nullptr;
@@ -150,7 +158,9 @@ int* left(int *position) {
 int* right(int *position) {
     int x = getX(position);
     if(x > -1) {
-        position = (x + 1 < fieldX) ? ++position : position - fieldX + 1;
+        position = (x + 1 < fieldX) ?
+                    ++position :
+                    position - fieldX + 1;
         return position;
     }
     return nullptr;
@@ -159,7 +169,9 @@ int* right(int *position) {
 int* up(int *position) {
     int y = getY(position);
     if(y > -1) {
-        position = (position - fieldX >= field) ? position - fieldX : position - fieldX + fieldX * fieldY;
+        position = (position - fieldX >= field) ?
+                    position - fieldX :
+                    position - fieldX + fieldX * fieldY;
         return position;
     }
     return nullptr;
@@ -168,7 +180,9 @@ int* up(int *position) {
 int* down(int *position) {
     int y = getY(position);
     if(y > -1) {
-        position = (position + fieldX < field + fieldX * fieldY) ? position + fieldX : position + fieldX - fieldX * fieldY;
+        position = (position + fieldX < field + fieldX * fieldY) ?
+                    position + fieldX :
+                    position + fieldX - fieldX * fieldY;
         return position;
     }
     return nullptr;
