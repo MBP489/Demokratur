@@ -22,6 +22,7 @@ int* initParties(int *parties, int partiessize);
 int getRand(int inclusiveUpperBound);
 bool isUniform();
 void printField(int time);
+string printField();
 
 static mt19937 engine;
 
@@ -41,7 +42,6 @@ void init(int X, int Y, int *part, int partsize, int st, int prtSteps) {
     if (partsize > 4) {
         throw -1;
     }
-
     fieldX = X;
     fieldY = Y;
     steps = st;
@@ -58,9 +58,7 @@ void init(int X, int Y, int *part, int partsize, int st, int prtSteps) {
 
 int main() {
     int parties[] = {50, 50};
-    init(20, 20, parties, 2, 70000000, 100);
-//    int *candidate;
-//    int *neighbour;
+    init(20, 20, parties, sizeof(parties)/sizeof(int), 70000000, 100);
     limit = 0;
     int fieldsize = fieldX * fieldY;
 
@@ -240,17 +238,33 @@ int* initFieldRand(int fieldsize, int parties) {
 
 void printField(int time) {
     system("cls");
-    cout << "DEMOKRATUR" << endl << endl;
+    cout << printField();
+//    cout << "DEMOKRATUR" << endl << endl;
+//    int *pos = field;
+//    for (int y = 0; y < fieldY; y++) {
+//        for (int x = 0; x < fieldX; x++) {
+//            cout << signs[*pos];
+//            pos++;
+//        }
+//        cout << endl;
+//    }
+//    cout << endl << "COUNTER: " << counter << endl;
+    Sleep(time);
+}
+
+string printField() {
+    stringstream sstr();
+    sstr << "DEMOKRATUR" << endl << endl;
     int *pos = field;
     for (int y = 0; y < fieldY; y++) {
         for (int x = 0; x < fieldX; x++) {
-            cout << signs[*pos];
+            sstr << signs[*pos];
             pos++;
         }
-        cout << endl;
+        sstr << endl;
     }
-    cout << endl << "COUNTER: " << counter << endl;
-    Sleep(time);
+    sstr << endl << "COUNTER: " << counter << endl;
+    return sstr.str();
 }
 
 /**
